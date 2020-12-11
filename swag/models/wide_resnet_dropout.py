@@ -14,7 +14,9 @@ import math
 __all__ = ["WideResNet28x10Drop"]
 
 P = 0.05
-initializer = tf.keras.initializers.HeNormal()
+#initializer = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_out', distribution='truncated_normal')
+initializer = tf.keras.initializers.GlorotUniform()
+fc_init = tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='uniform')
 
 # def conv3x3(in_planes, out_planes, stride=1):
 #     return nn.Conv2d(
@@ -87,7 +89,7 @@ class WideResNetDrop(tf.keras.Model):
         self.layer2 = self._wide_layer(WideBasic, nstages[2], n, stride=2)
         self.layer3 = self._wide_layer(WideBasic, nstages[3], n, stride=2)
         self.bn1 = tkl.BatchNormalization(nstages[3], momentum=0.9)
-        self.linear = tkl.Dense(num_classes, activation='softmax', kernel_initializer=initializer)
+        self.linear = tkl.Dense(num_classes, kernel_initializer=fc_init, bias_initializer=fc_init)
         self.drop = tkl.Dropout(rate=P)
 
         self.Input = tf.keras.Input(shape=input_shape)
@@ -96,7 +98,7 @@ class WideResNetDrop(tf.keras.Model):
         out = self.layer2(out)
         out = self.layer3(out)
         out = tkl.ReLU()(self.bn1(out))
-        out = tkl.AveragePool2D((8,8))(out)
+        out = tkl.AveragePooling2D((8,8))(out)
         out = tkl.Flatten()
         out = self.drop(out)
         out = self.linear(out)
@@ -144,7 +146,7 @@ class WideResNet28x10Drop:
         lambda img, y: (img/255.0, y),
         lambda img, y: (tf.image.resize(img, [32, 32]), y),
         lambda img, y: (tf.image.random_crop(img, [32, 32, 3]), y),
-        lambda img, y: (tf.image.random_flip_left_right(x), y),
+        lambda img, y: (tf.image.random_flip_left_right(img), y),
         lambda img, y: ((img-[0.4914, 0.4822, 0.4465])/[0.2023, 0.1994, 0.2010], y)
     ]
     transform_test = [

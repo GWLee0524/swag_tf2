@@ -12,7 +12,9 @@ import tensorflow.keras.layers as tkl
 import math
 
 __all__ = ["WideResNet28x10"]
-initializer = tf.keras.initializers.HeNormal()
+#initializer = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_out', distribution='truncated_normal')
+initializer = tf.keras.initializers.GlorotUniform()
+fc_init = tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='uniform')
 
 def conv3x3(in_planes, out_planes, stride=1):
     return tkl.Conv2D(
@@ -47,7 +49,7 @@ class WideBasic(tf.keras.layers.Layer):
         self.planes = planes
         if stride != 1 or in_planes != planes:
             self.shortcut = tkl.Conv2D(planes, kernel_size=1, strides=(stride,stride), kernel_initializer=initializer)
-        self.relu = tf.keras.ReLU()
+        self.relu = tf.keras.layers.ReLU()
 
     def call(self, x):
         out = self.dropout(self.conv1(self.relu(self.bn1(x))))
@@ -74,7 +76,7 @@ class WideResNet(tf.keras.Model):
         self.layer2 = self._wide_layer(WideBasic, nstages[2], n, dropout_rate, stride=2)
         self.layer3 = self._wide_layer(WideBasic, nstages[3], n, dropout_rate, stride=2)
         self.bn1 = tkl.BatchNormalization(momentum=0.9)
-        self.linear = tkl.Dense(num_classes, activation='softmax', kernel_initializer=initializer)
+        self.linear = tkl.Dense(num_classes, kernel_initializer=fc_init, bias_initializer=fc_init)
 
         self.Input = tf.keras.Input(shape=input_shape)
         out = self.conv1(self.Input)
@@ -82,7 +84,7 @@ class WideResNet(tf.keras.Model):
         out = self.layer2(out)
         out = self.layer3(out)
         out = tkl.ReLU()(self.bn1(out))
-        out = tkl.AveragePool2D((8,8))(out)
+        out = tkl.AveragePooling2D((8,8))(out)
         out = tkl.Flatten()(out)
         out = self.linear(out)
 
@@ -129,7 +131,7 @@ class WideResNet28x10:
         lambda img, y: (img/255.0, y),
         lambda img, y: (tf.image.resize(img, [32, 32]), y),
         lambda img, y: (tf.image.random_crop(img, [32, 32, 3]), y),
-        lambda img, y: (tf.image.random_flip_left_right(x), y),
+        lambda img, y: (tf.image.random_flip_left_right(img), y),
         lambda img, y: ((img-[0.4914, 0.4822, 0.4465])/[0.2023, 0.1994, 0.2010], y)
     ]
     transform_test = [

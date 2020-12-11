@@ -317,8 +317,10 @@ def loaders(
     for t in transform_test:
         test_set = test_set.map(t)
 
-    train_set = train_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
-    test_set = test_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
+    #train_set = train_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
+    #test_set = test_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
+    train_set = train_set.batch(batch_size)
+    test_set = test_set.batch(batch_size)
     return (
         {
             "train": tfds.as_numpy(train_set),

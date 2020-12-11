@@ -132,7 +132,7 @@ def train_epoch_v2(
             #correct += pred.eq(target.data.view_as(pred)).sum().item()
             
             pred = tf.math.argmax(output, 1)
-            target = tf.math.argmax(target, 1)
+            #target = tf.math.argmax(target, 1)
             correct += tf.math.reduce_sum(tf.cast(tf.math.equal(pred, target), dtype=tf.float32)).numpy().item()
 
         #num_objects_current += input.size(0)
@@ -208,7 +208,7 @@ def train_epoch(
             #correct += pred.eq(target.data.view_as(pred)).sum().item()
             
             pred = tf.math.argmax(output, 1)
-            target = tf.math.argmax(target, 1)
+            #target = tf.math.argmax(target, 1)
             correct += tf.math.reduce_sum(tf.cast(tf.math.equal(pred, target), dtype=tf.float32)).numpy().item()
 
         #num_objects_current += input.size(0)
@@ -269,7 +269,7 @@ def eval(loader, model, criterion, regression=False, verbose=False):
             # pred = output.data.argmax(1, keepdim=True)
             # correct += pred.eq(target.data.view_as(pred)).sum().item()
             pred = tf.math.argmax(output, 1)
-            target = tf.math.argmax(target, 1) #onehot to label
+            #target = tf.math.argmax(target, 1) #onehot to label
             correct += tf.math.reduce_sum(tf.cast(tf.math.equal(pred, target),dtype=tf.float32)).numpy().item()
 
     return {
@@ -303,7 +303,7 @@ def predict(loader, model, verbose=False):
             output = model(input)
 
             batch_size = input.shape[0]
-            #predictions.append(tf.nn.softmax(output, axis=1).numpy())
+            predictions.append(tf.nn.softmax(output, axis=1).numpy())
             predictions.append(output.numpy())
             targets.append(target)
             offset += batch_size

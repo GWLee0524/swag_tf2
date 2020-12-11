@@ -4,7 +4,8 @@ import torch.nn.functional as F
 import tensorflow as tf 
 import tensorflow_probability as tfp
 tfd = tfp.distributions
-loss_function =tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+#loss_function =tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+loss_function = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 def cross_entropy(model, input, target):
     # standard cross-entropy loss function
 
