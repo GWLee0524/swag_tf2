@@ -98,7 +98,7 @@ class VGG(tf.keras.Model):
             tkl.Dropout(rate=0.5),
             tkl.Dense(512, kernel_initializer=fc_init, bias_initializer=fc_init),
             tkl.ReLU(),
-            tkl.Dense(num_classes, activation='softmax', kernel_initializer=fc_init, bias_initializer=fc_init)
+            tkl.Dense(num_classes, kernel_initializer=fc_init, bias_initializer=fc_init)
             ])
 
         out = self.features(self.Input)
@@ -145,8 +145,8 @@ class Base:
     transform_train = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
         lambda img, y: (img/255.0, y),
-        lambda img, y: (tf.image.random_flip_left_right(img),y),
         lambda img, y: (tf.image.resize(img, [32, 32]), y),
+        lambda img, y: (tf.image.random_flip_left_right(img),y),
         lambda img, y: (tf.image.random_crop(img, [32, 32, 3]), y),
         lambda img, y: ((img-[0.485, 0.456, 0.406])/[0.229, 0.224, 0.225], y)
     ]

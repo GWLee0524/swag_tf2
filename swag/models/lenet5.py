@@ -123,13 +123,13 @@ class LeNet5:
     # ]
     transform_train = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img, y: (tf.image.random_flip_left_right(x), y),
         lambda img, y: (tf.image.random_crop(img, [28, 28, 3]), y),
         lambda img, y: ((img-0.1307)/0.3081, y)
     ]
     transform_test = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img, y: ((img-0.1307)/0.3081, y)
     ]

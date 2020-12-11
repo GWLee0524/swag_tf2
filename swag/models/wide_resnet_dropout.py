@@ -141,7 +141,7 @@ class WideResNet28x10Drop:
     # )
     transform_train = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img, y: (tf.image.resize(img, [32, 32]), y),
         lambda img, y: (tf.image.random_crop(img, [32, 32, 3]), y),
         lambda img, y: (tf.image.random_flip_left_right(x), y),
@@ -149,7 +149,7 @@ class WideResNet28x10Drop:
     ]
     transform_test = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img, y: (tf.image.resize(img, [32, 32]), y),
         lambda img, y: ((img-[0.4914, 0.4822, 0.4465])/[0.2023, 0.1994, 0.2010], y)
     ]

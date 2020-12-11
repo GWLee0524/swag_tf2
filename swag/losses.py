@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import tensorflow as tf 
 import tensorflow_probability as tfp
 tfd = tfp.distributions
-
+loss_function =tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 def cross_entropy(model, input, target):
     # standard cross-entropy loss function
 
@@ -14,7 +14,7 @@ def cross_entropy(model, input, target):
     #print(output[0])
     #loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
     #loss_fn = tf.keras.losses.sparse_categorical_crossentropy
-    loss_fn = tf.keras.losses.CategoricalCrossentropy()
+    loss_fn = loss_function
     loss = loss_fn(target, output)
     #loss = tf.math.reduce_sum(loss)
 
@@ -23,7 +23,7 @@ def cross_entropy(model, input, target):
 
 
 def adversarial_cross_entropy(
-    model, input, target, lossfn=tf.keras.losses.SparseCategoricalCrossentropy(), epsilon=0.01
+    model, input, target, lossfn=loss_function, epsilon=0.01
 ):
     # loss function based on algorithm 1 of "simple and scalable uncertainty estimation using
     # deep ensembles," lakshminaraynan, pritzel, and blundell, nips 2017,
@@ -95,7 +95,7 @@ def masked_loss(y_pred, y_true, void_class=11.0, weight=None, reduce=True):
     # loss = F.cross_entropy(y_pred, y_true_tmp, weight=weight, reduction="none")
     # loss = mask.float() * loss
 
-    loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
+    loss_fn =loss_function
     loss = loss_fn(y_true_tmp, y_pred, sample_weight=weight)
     loss = tf.cast(mask, tf.float32) * loss
 

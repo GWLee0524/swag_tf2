@@ -218,12 +218,12 @@ class FCDenseNet57:
 
     transform_train = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img: (img-camvid_mean)/camvid_std
     ]
     transform_test = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img: (img-camvid_mean)/camvid_std
     ]
 
@@ -268,12 +268,12 @@ class FCDenseNet67:
 
     transform_train = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         #lambda img: (img-camvid_mean)/camvid_std
     ]
     transform_test = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         #lambda img: (img-camvid_mean)/camvid_std
     ]
 
@@ -318,11 +318,11 @@ class FCDenseNet103:
 
     transform_train = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         #lambda img: (img-camvid_mean)/camvid_std
     ]
     transform_test = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         #lambda img: (img-camvid_mean)/camvid_std
     ]
