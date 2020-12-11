@@ -10,7 +10,8 @@ import tensorflow.keras.layers as tkl
 #import torchvision.transforms as transforms
 
 __all__ = ["VGG16", "VGG16BN", "VGG19", "VGG19BN"]
-initializer = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_out')
+initializer = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_out', distribution='truncated_normal')
+fc_init = tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='uniform')
 
 def make_layers(cfg, batch_norm=False):
     layers = list()
@@ -92,12 +93,12 @@ class VGG(tf.keras.Model):
         # )
         self.classifier = tf.keras.Sequential([
             tkl.Dropout(rate=0.5),
-            tkl.Dense(512, kernel_initializer=initializer),
+            tkl.Dense(512, kernel_initializer=fc_init, bias_initializer=fc_init),
             tkl.ReLU(),
             tkl.Dropout(rate=0.5),
-            tkl.Dense(512, kernel_initializer=initializer),
+            tkl.Dense(512, kernel_initializer=fc_init, bias_initializer=fc_init),
             tkl.ReLU(),
-            tkl.Dense(num_classes, activation='softmax' , kernel_initializer=initializer)
+            tkl.Dense(num_classes, activation='softmax', kernel_initializer=fc_init, bias_initializer=fc_init)
             ])
 
         out = self.features(self.Input)
@@ -143,15 +144,15 @@ class Base:
 
     transform_train = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y) ,
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img, y: (tf.image.random_flip_left_right(img),y),
-        lambda img, y: (tf.image.random_crop(img, [32, 32, 3]), y),
         lambda img, y: (tf.image.resize(img, [32, 32]), y),
+        lambda img, y: (tf.image.random_crop(img, [32, 32, 3]), y),
         lambda img, y: ((img-[0.485, 0.456, 0.406])/[0.229, 0.224, 0.225], y)
     ]
     transform_test = [
         lambda img, y: (tf.cast(tf.convert_to_tensor(img), dtype=tf.float32), y),
-        lambda img, y: (tf.image.per_image_standardization(img), y),
+        lambda img, y: (img/255.0, y),
         lambda img, y: (tf.image.resize(img, [32, 32]), y),
         lambda img, y: ((img-[0.485, 0.456, 0.406])/[0.229, 0.224, 0.225], y)
     ]

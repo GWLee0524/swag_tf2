@@ -56,6 +56,103 @@ def adjust_learning_rate(optimizer, lr):
 #     state['optimizer']
 #     torch.save(state, filepath)
 
+def set_velocity(params):
+    velocity = []
+    for p in params:
+        v = tf.zeros_like(p)
+        velocity.append(v)
+    return velocity
+
+def apply_gradient_with_vel(train_vars, grads, velocity, lr, momentum):
+    #velocity = momentum * velocity + grads
+    new_velocity = []
+    for var, g, vel in zip(train_vars, grads, velocity):
+        vel = momentum * vel + g
+        var.assign(var - lr * vel)
+        new_velocity.append(vel)
+    return train_vars, new_velocity
+
+def train_epoch_v2(
+    loader,
+    model,
+    criterion,
+    optimizer,
+    weight_decay=1e-4,
+    regression=False,
+    verbose=False,
+    subset=None,
+    velocity=None
+):
+    loss_sum = 0.0
+    correct = 0.0
+    verb_stage = 0
+
+    num_objects_current = 0
+    num_batches = len(loader) if "__len__" in dir(loader) else len(list(loader))
+
+    #model.train()
+    regularizer = tf.keras.regularizers.L2(l2=weight_decay)
+
+    if subset is not None:
+        num_batches = int(num_batches * subset)
+        loader = itertools.islice(loader, num_batches)
+
+    if verbose:
+        loader = tqdm.tqdm(loader, total=num_batches)
+
+    for i, (input, target) in enumerate(loader):
+        # if cuda:
+        #     input = input.cuda(non_blocking=True)
+        #     target = target.cuda(non_blocking=True)
+        #print(input[0])
+        with tf.GradientTape() as tape:
+            input = tf.Variable(input, dtype=tf.float32)
+            train_vars = model.trainable_variables
+            tape.watch(train_vars)
+            loss, output = criterion(model, input, target)
+            for var in train_vars:
+                loss += regularizer(var)
+        grads = tape.gradient(loss, train_vars)
+
+        if velocity is None:
+            velocity=set_velocity(train_vars)
+
+        train_vars, velocity = apply_gradient_with_vel(train_vars, grads, velocity, optimizer.lr, optimizer.momentum)
+
+        #optimizer.apply_gradients(zip(grads, train_vars))
+        # optimizer.zero_grad()
+        # loss.backward()
+        # optimizer.step()
+
+        #loss_sum += loss.data.item() * input.size(0)
+        loss_sum += loss.numpy().item() * input.shape[0]
+
+        if not regression:
+            #pred = output.data.argmax(1, keepdim=True)
+            #correct += pred.eq(target.data.view_as(pred)).sum().item()
+            
+            pred = tf.math.argmax(output, 1)
+            target = tf.math.argmax(target, 1)
+            correct += tf.math.reduce_sum(tf.cast(tf.math.equal(pred, target), dtype=tf.float32)).numpy().item()
+
+        #num_objects_current += input.size(0)
+        num_objects_current += input.shape[0]
+
+        if verbose and 10 * (i + 1) / num_batches >= verb_stage + 1:
+            print(
+                "Stage %d/10. Loss: %12.4f. Acc: %6.2f"
+                % (
+                    verb_stage + 1,
+                    loss_sum / num_objects_current,
+                    correct / num_objects_current * 100.0,
+                )
+            )
+            verb_stage += 1
+
+    return {
+        "loss": loss_sum / num_objects_current,
+        "accuracy": None if regression else correct / num_objects_current * 100.0,
+    }, velocity
 
 def train_epoch(
     loader,

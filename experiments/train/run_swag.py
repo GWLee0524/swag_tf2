@@ -241,7 +241,9 @@ elif args.loss == "adv_CE":
 # optimizer = torch.optim.SGD(
 #     model.parameters(), lr=args.lr_init, momentum=args.momentum, weight_decay=args.wd
 # )
-optimizer = tf.keras.optimizers.SGD(learning_rate=args.lr_init, momentum=args.momentum)
+optimizer = tf.keras.optimizers.SGD(learning_rate=args.lr_init, momentum=args.momentum, nesterov=False)
+#optimizer = tf.keras.optimizers.Adam(learning_rate=args.lr_init)
+velocity = None
 
 start_epoch = 0
 
@@ -312,8 +314,10 @@ for epoch in range(start_epoch, args.epochs):
 
     if (args.swa and (epoch + 1) > args.swa_start) and args.cov_mat:
         train_res = utils.train_epoch(loaders["train"], model, criterion, optimizer, weight_decay=args.wd)
+        #train_res, velocity = utils.train_epoch_v2(loaders["train"], model, criterion, optimizer, weight_decay=args.wd, velocity=velocity)
     else:
         train_res = utils.train_epoch(loaders["train"], model, criterion, optimizer, weight_decay=args.wd)
+        #train_res, velocity = utils.train_epoch_v2(loaders["train"], model, criterion, optimizer, weight_decay=args.wd, velocity=velocity)
 
     if (
         epoch == 0
@@ -389,6 +393,12 @@ for epoch in range(start_epoch, args.epochs):
     else:
         table = table.split("\n")[2]
     print(table)
+
+    if args.epochs % args.save_freq !=0:
+        import json
+        save_path = os.path.join(args.dir, 'result.json')
+        with open(save_path, 'w') as fp:
+            json.dump(values, fp)
 
 # if args.epochs % args.save_freq != 0:
 #     utils.save_checkpoint(

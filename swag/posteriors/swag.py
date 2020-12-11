@@ -152,8 +152,8 @@ class SWAG(tf.keras.Model):
                     w = mean + scaled_diag_sample
             else:
                 w = mean + scaled_diag_sample
-            self.params[name] = w
-
+            #self.params[name] = w
+            var.assign(w)
 
     def sample_fullrank(self, scale, cov, fullrank):
         scale_sqrt = scale ** 0.5
@@ -229,7 +229,8 @@ class SWAG(tf.keras.Model):
         # for (module, name), sample in zip(self.params, samples_list):
         #     module.__setattr__(name, sample.cuda())
         for var, sample in zip(self.base.trainable_variables, samples_list):
-            self.params[var.name] = sample
+            #self.params[var.name] = sample
+            var.assign(sample)
 
     def collect_model(self, base_model):
         # for (module, name), base_param in zip(self.params, base_model.parameters()):
