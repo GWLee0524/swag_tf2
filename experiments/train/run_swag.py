@@ -313,11 +313,11 @@ for epoch in range(start_epoch, args.epochs):
         lr = args.lr_init
 
     if (args.swa and (epoch + 1) > args.swa_start) and args.cov_mat:
-        train_res = utils.train_epoch(loaders["train"], model, criterion, optimizer, weight_decay=args.wd)
-        #train_res, velocity = utils.train_epoch_v2(loaders["train"], model, criterion, optimizer, weight_decay=args.wd, velocity=velocity)
+        #train_res = utils.train_epoch(loaders["train"], model, criterion, optimizer, weight_decay=args.wd)
+        train_res, velocity = utils.train_epoch_v2(loaders["train"], model, criterion, optimizer, weight_decay=args.wd, velocity=velocity)
     else:
-        train_res = utils.train_epoch(loaders["train"], model, criterion, optimizer, weight_decay=args.wd)
-        #train_res, velocity = utils.train_epoch_v2(loaders["train"], model, criterion, optimizer, weight_decay=args.wd, velocity=velocity)
+        #train_res = utils.train_epoch(loaders["train"], model, criterion, optimizer, weight_decay=args.wd)
+        train_res, velocity = utils.train_epoch_v2(loaders["train"], model, criterion, optimizer, weight_decay=args.wd, velocity=velocity)
 
     if (
         epoch == 0

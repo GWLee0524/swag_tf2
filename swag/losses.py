@@ -16,7 +16,7 @@ def cross_entropy(model, input, target):
     #loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
     #loss_fn = tf.keras.losses.sparse_categorical_crossentropy
     loss_fn = loss_function
-    loss = loss_fn(target, output)
+    loss = loss_fn(target, output+1e-20)
     #loss = tf.math.reduce_sum(loss)
 
 

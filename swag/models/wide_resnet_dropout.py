@@ -14,8 +14,8 @@ import math
 __all__ = ["WideResNet28x10Drop"]
 
 P = 0.05
-#initializer = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_out', distribution='truncated_normal')
-initializer = tf.keras.initializers.GlorotUniform()
+initializer = tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='uniform')
+#initializer = tf.keras.initializers.GlorotUniform()
 fc_init = tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='uniform')
 
 # def conv3x3(in_planes, out_planes, stride=1):

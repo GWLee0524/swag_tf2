@@ -153,8 +153,10 @@ def svhn_loaders(
     for t in transform_test:
         test_set = test_set.map(t)
 
-    train_set = train_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
-    test_set = test_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
+    train_set = train_set.batch(batch_size)
+    test_set = test_set.batch(batch_size)
+    #train_set = train_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
+    #test_set = test_set.batch(batch_size).map(lambda x, y:(x, tf.one_hot(y, depth=num_classes)))
     
     return (
         {
@@ -232,14 +234,14 @@ def loaders(
         # train_set = ds(
         #     root=path, split="train", download=True, transform=transform_train
         # )
-        train_set, info = tfds.load('stl10', split='train', as_supervised=True, with_info=True)
+        train_set, info = tfds.load('stl10', split='train', as_supervised=True, with_info=True, shuffle_files=shuffle_train)
         num_classes = info.features['label'].num_classes
         num_train = info.splits['train'].num_examples
         input_shape = info.features['image'].shape
         #cls_mapping = np.array([0, 2, 1, 3, 4, 5, 7, 6, 8, 9])
         #train_set.labels = cls_mapping[train_set.labels]
     else:
-        train_set, info = tfds.load(dataset.lower(), split='train', as_supervised=True, with_info=True)
+        train_set, info = tfds.load(dataset.lower(), split='train', as_supervised=True, with_info=True, shuffle_files=shuffle_train)
         num_classes = info.features['label'].num_classes
         num_train = info.splits['train'].num_examples
         input_shape = info.features['image'].shape
@@ -261,7 +263,7 @@ def loaders(
         # test_set.data = test_set.data[-val_size:]
         # test_set.targets = test_set.targets[-val_size:]
 
-        train_set = tfds.load(dataset.lower(), split='train[:-%d]'%(val_size), as_supervised=True)
+        train_set = tfds.load(dataset.lower(), split='train[:-%d]'%(val_size), as_supervised=True, shuffle_files=shuffle_train)
         test_set = tfds.load(dataset.lower(), split='test[-%d:]'%(val_size), as_supervised=True)
 
         # delattr(test_set, 'data')

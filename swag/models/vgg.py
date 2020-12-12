@@ -10,7 +10,7 @@ import tensorflow.keras.layers as tkl
 #import torchvision.transforms as transforms
 
 __all__ = ["VGG16", "VGG16BN", "VGG19", "VGG19BN"]
-initializer = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_out', distribution='truncated_normal')
+initializer = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_out', distribution='untruncated_normal')
 fc_init = tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='uniform')
 
 def make_layers(cfg, batch_norm=False):
